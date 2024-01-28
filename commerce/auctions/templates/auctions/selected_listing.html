@@ -1,0 +1,145 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+<div class="container">
+    <!-- Left Column / Headphones Image -->
+    <div class="left-column">
+      <img data-image="red" class="active" src={{data.img_url}} alt="">
+      <br>
+      {%if user.is_authenticated and data.is_active == True%}
+      {%if watch == "no"%}
+      <div class="container1">
+        <form action="{% url 'watch' %}" method="GET">
+          <input type = "hidden", Name = "watch", value = {{data.listingid}}>
+          <div class="vertical-center">
+          <button class="btn_watchlist">ADD TO WATCHLIST</button>
+          </div>
+        </form>
+      </div>
+      {%elif watch == "yes"%}
+      <div class="container1">
+        <form action="{% url 'watch' %}" method="POST">
+          {% csrf_token %}
+          <input type = "hidden", Name = "watch", value = {{data.listingid}}>
+          <div class="vertical-center">
+          <button class="btn_watchlist">REMOVE FROM WAITLIST</button>
+          </div>
+        </form>
+      </div>
+      {%endif%}
+      {%endif%}
+    </div>
+  
+    <!-- Right Column -->
+      <div class="right-column">
+        <!-- Product Description -->
+          <div class="product-description">
+            <span>{{data.category.category_name}}</span>
+            <h1>{{data.title}}</h1>
+            <p>{{data.description}}</p>
+          </div>
+      
+          <!-- Product Configuration -->
+          <div class="product-configuration">
+      
+            <!-- Cable Configuration -->
+            <div class="cable-config">
+                <h4><b>Details</b></h4>
+                <p>listed by: <b>{{data.userid}}</b></p> 
+                <p> Category: <b>{{data.category.category_name}}</b></p>
+              </div>
+          </div>
+       
+          <!-- Product Pricing -->
+          <div class="product-price">
+            {%if bid %}
+            <span>${{data.bid}}</span>
+            <span><b>Current highest bid</b></span>
+            {%else%}
+            <span>${{data.starting_amount}}</span>
+            <span><b>Starting Price</b></span>
+            <br>
+            {%endif%}
+          </div>
+          {%if highest_bid and data.is_active == True%}
+            <div class="product-price">
+            <span style="white-space: pre-line">${{highest_bid}}</span>
+            <span><b>Highest Bid</b></span>
+            </div>
+            {%else%}
+            <div class="product-price">
+              <span style="white-space: pre-line">${{highest_bid}}</span>
+              <span><b>Closing Bid</b></span>
+            </div>
+            <div class="product-price">
+              <span style="white-space: pre-line"><h2>This Auction is closed</h2></span>
+            </div>
+          {%endif%}
+          <hr>
+          {% if user.is_authenticated and data.is_active == True%}
+          <div class="product-price">
+            <form action="{% url 'selected_listing' %}" method="POST">
+                {% csrf_token %}
+                <input type="number" name="bid_amount" placeholder="BID">
+                <input type = "hidden" name = "listingid" value="{{data.listingid}}">
+                <input type = "hidden" name = "user" value="{{user}}">
+                <button class="cart-btn">BID</button>
+            </form>
+            
+            {%if user == data.userid and data.is_active == True%}
+            <form action="{% url 'end_listing' %}" method="POST">
+              {% csrf_token %}
+            <input type = "hidden" name = "listingid" value="{{data.listingid}}">
+            <button class="cart-btn">Stop the listing</button>
+            </form>
+            {%endif%}
+          </div>
+            {%endif%}
+
+            {%if user == data.userid and data.is_active == False%}
+            <h2>You have Won this Auction</h2>
+            {%endif%}
+          
+            {% if messages %}
+                <ul class="alert alert-danger" role="alert">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+              <hr>
+          
+            {% endif %}
+           <hr>
+        
+        {% if user.is_authenticated and data.is_active == True %} 
+          <div class="comment">
+            <h3><b><u>Ratings & Reviews</u></b></h3> 
+            <form action="{% url 'selected_listing' %}" method="GET" >
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="comment">Please enter your comment here</label>
+                <textarea class="form-control" id="comment" name = "comment" rows="3"></textarea>
+              </div>
+              <input type = "hidden", Name = "selected", value = {{data.listingid}}>
+              <input type = "submit" name = "submit" class="cart-btn">
+            </form>
+          </div>
+        {%endif%}
+        
+        {%if comment%}
+        <div>
+          <hr>
+          <h5><i><u><b>COMMENTS</b></u></i></h5>
+          <ul>
+            {%for c in comment%}
+            <li><b>{{c.user}}</b>: {{c.comment}}</li>
+            {%endfor%}
+          </ul>
+        </div>        
+        {%endif%}
+      </div>
+  </div>
+
+
+
+
+{% endblock %}

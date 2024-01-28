@@ -1,0 +1,39 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+{% load static %}
+    <h2>Active Listings</h2>
+
+    <div class="container mt-100">
+        <div class="row">
+            {% for d in data %}
+            {%if d.is_active%}
+            <div class="col-md-4 col-sm-6">
+                <div class="card mb-30"><a class="card-img-tiles" href="#" data-abc="true">
+                        <div class="inner">
+                            <div class="main-img"><img src={{d.img_url}} alt={{d.title}}></div>
+                            <div class="thumblist">
+                                <img src={{d.img_url}} alt={{d.title}}>
+                                <img src={{d.img_url}} alt={{d.title}}>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{d.title}}</h4>
+                        <p class="description">{{d.description}}</p>
+                        <p class="text-muted">${{d.starting_amount}}</p>
+                        <form action="{% url 'selected_listing' %}" method="GET">
+                            <input value="{{d.listingid}}" name ="selected" type="hidden">
+                            <input class="btn btn-outline-primary btn-sm" type="submit" value="View Products">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <br>
+            {%endif%}
+            {% endfor %}
+        </div>
+    </div>
+    {%block listing%}
+    {%endblock%}
+{% endblock %}
